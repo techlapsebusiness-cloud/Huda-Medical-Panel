@@ -1,0 +1,140 @@
+<ion-content class="huda-page">
+  <div class="huda-page-pad">
+    <huda-page-header
+      title="Pharmacy analytics"
+      subtitle="Sales, margin and counter performance"
+      eyebrow="Business"
+    ></huda-page-header>
+
+    @if (loading) {
+      <div class="huda-card huda-card-pad">
+        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 70%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 55%"></ion-skeleton-text>
+      </div>
+    } @else if (error) {
+      <huda-empty-state title="Analytics unavailable" [body]="error" icon="stats-chart-outline">
+      </huda-empty-state>
+    } @else if (data) {
+      <div class="huda-kpi-strip">
+        <div class="huda-kpi-tile">
+          <div class="label">Gross sales</div>
+          <div class="huda-kpi">{{ inr(data.sales?.grossPaise) }}</div>
+        </div>
+        <div class="huda-kpi-tile">
+          <div class="label">Collected</div>
+          <div class="huda-kpi">{{ inr(data.sales?.collectedPaise) }}</div>
+        </div>
+        <div class="huda-kpi-tile">
+          <div class="label">Estimated profit</div>
+          <div class="huda-kpi">{{ inr(data.profitPaise) }}</div>
+        </div>
+        <div class="huda-kpi-tile">
+          <div class="label">Average dispense time</div>
+          <div class="huda-kpi">
+            {{ data.dispenseSlaAvgMinutes ?? '—' }}<span class="unit">min</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="huda-analytics-grid">
+        <div class="huda-card huda-card-pad">
+          <div class="card-head">
+            <h2 class="huda-card-title">Sales by day</h2>
+            <span class="huda-eyebrow">{{ dayBars.length }} days</span>
+          </div>
+
+          @if (!dayBars.length) {
+            <p class="huda-hint">No sales recorded in this period.</p>
+          } @else {
+            <div class="huda-bars">
+              @for (bar of dayBars; track bar.date) {
+                <div class="col" [class.peak]="bar.peak" [title]="bar.label + ' · ' + inr(bar.paise)">
+                  <div class="track">
+                    <div class="fill" [style.height.%]="bar.heightPct"></div>
+                  </div>
+                  <div class="tick">{{ bar.label }}</div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="huda-card huda-card-pad">
+          <div class="card-head">
+            <h2 class="huda-card-title">Top medicines</h2>
+            <span class="huda-eyebrow">By units sold</span>
+          </div>
+
+          @if (!topDrugs.length) {
+            <p class="huda-hint">Nothing dispensed in this period yet.</p>
+          } @else {
+            @for (d of topDrugs; track d.drugId) {
+              <div class="huda-meter-row">
+                <div class="head">
+                  <span class="drug">{{ d.brandName }}</span>
+                  <span class="huda-mono units">{{ d.unitsSold }}</span>
+                </div>
+                <div class="huda-meter">
+                  <div class="fill" [style.width.%]="d.widthPct"></div>
+                </div>
+              </div>
+            }
+          }
+        </div>
+
+        <div class="huda-card huda-card-pad">
+          <h2 class="huda-card-title">Collection</h2>
+          <div class="huda-meter-row">
+            <div class="head">
+              <span>Collected of gross</span>
+              <span class="huda-mono">{{ collectionPct }}%</span>
+            </div>
+            <div class="huda-meter">
+              <div class="fill success" [style.width.%]="collectionPct"></div>
+            </div>
+          </div>
+
+          <div class="huda-dl spaced">
+            <div class="row">
+              <span class="k">Outstanding</span>
+              <span class="v huda-mono">{{ inr(outstandingPaise) }}</span>
+            </div>
+            <div class="row">
+              <span class="k">Bills issued</span>
+              <span class="v huda-mono">{{ data.sales?.billCount ?? 0 }}</span>
+            </div>
+            <div class="row">
+              <span class="k">Bills paid</span>
+              <span class="v huda-mono">{{ data.sales?.paidCount ?? 0 }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="huda-card huda-card-pad">
+          <h2 class="huda-card-title">Margin & returns</h2>
+          <div class="huda-meter-row">
+            <div class="head">
+              <span>Estimated margin</span>
+              <span class="huda-mono">{{ marginPct }}%</span>
+            </div>
+            <div class="huda-meter">
+              <div class="fill" [style.width.%]="marginPct"></div>
+            </div>
+          </div>
+
+          <div class="huda-dl spaced">
+            <div class="row">
+              <span class="k">Profit (MRP − cost)</span>
+              <span class="v huda-mono">{{ inr(data.profitPaise) }}</span>
+            </div>
+            <div class="row">
+              <span class="k">Returns processed</span>
+              <span class="v huda-mono">{{ data.returnsCount ?? 0 }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</ion-content>

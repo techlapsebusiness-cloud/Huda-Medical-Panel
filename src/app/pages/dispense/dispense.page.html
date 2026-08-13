@@ -1,0 +1,271 @@
+<ion-header class="huda-ion-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/queue" text=""></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="huda-page">
+  <div class="huda-page-pad">
+    @if (loading) {
+      <div class="huda-card huda-card-pad">
+        <ion-skeleton-text animated style="width: 45%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 70%"></ion-skeleton-text>
+      </div>
+    } @else if (!task) {
+      <huda-empty-state
+        title="Task not available"
+        [body]="error || 'This dispense task could not be loaded.'"
+        icon="alert-circle-outline"
+      >
+        <ion-button class="huda-btn-ghost" routerLink="/queue">Back to queue</ion-button>
+      </huda-empty-state>
+    } @else {
+      <div class="huda-stepper">
+        <span class="step done">Prescribed</span>
+        <span class="sep">›</span>
+        <span class="step" [class.current]="!bill" [class.done]="!!bill">Dispense</span>
+        <span class="sep">›</span>
+        <span class="step" [class.current]="bill && !isPaid" [class.done]="isPaid">Bill</span>
+        <span class="sep">›</span>
+        <span class="step" [class.done]="isPaid" [class.current]="isPaid">Collect</span>
+      </div>
+
+      <huda-page-header
+        [title]="task.patientName || 'Patient'"
+        [subtitle]="(task.doctorName || 'Doctor') + ' · ' + (task.lines?.length || 0) + ' medicines'"
+        eyebrow="Dispense"
+      >
+        <huda-badge [label]="task.status" [variant]="badge(task.status)"></huda-badge>
+      </huda-page-header>
+
+      @if (error) {
+        <div class="huda-card huda-card-pad error-card">
+          <p class="huda-error">{{ error }}</p>
+        </div>
+      }
+
+      <div class="huda-workspace">
+        <div>
+          <div class="huda-card">
+            <div class="huda-card-pad lines-head">
+              <h2 class="huda-card-title">Prescribed medicines</h2>
+              <span class="huda-eyebrow">FEFO lots suggested</span>
+            </div>
+
+            @for (line of task.lines; track line.medicineRowId) {
+              <div class="huda-line">
+                <div class="line-top">
+                  <div class="line-id">
+                    <p class="title">{{ line.brandName || 'Medicine' }} {{ line.strength }}</p>
+                    <p class="sub">
+                      {{ line.genericName }} · Rx {{ line.requestedQty }} · dispensed
+                      {{ line.dispensedQty || 0 }}
+                    </p>
+                  </div>
+                  @if (remaining(line) === 0) {
+                    <huda-badge label="Fulfilled" variant="success"></huda-badge>
+                  }
+                </div>
+
+                @if (suggestion(line.medicineRowId); as sug) {
+                  <div class="lots">
+                    @for (lot of sug.lots; track lot.lotId) {
+                      <span class="huda-chip" [class.warning]="lot.expiryDate && expiringSoon(lot.expiryDate)">
+                        <ion-icon name="layers-outline"></ion-icon>
+                        {{ lot.batchNo || 'batch —' }} · exp {{ lot.expiryDate || '—' }} · ×{{ lot.qty }}
+                      </span>
+                    } @empty {
+                      <span class="huda-chip" [class.danger]="!sug.available">
+                        {{ sug.available ? 'Available ' + sug.available : 'No stock on hand' }}
+                      </span>
+                    }
+                  </div>
+                }
+
+                <div class="line-controls">
+                  <div class="qty-field">
+                    <span class="huda-field-label">Dispense qty</span>
+                    <div class="huda-qty">
+                      <button
+                        type="button"
+                        aria-label="Decrease"
+                        [disabled]="lineOos[line.medicineRowId] || (lineQty[line.medicineRowId] || 0) <= 0"
+                        (click)="step(line.medicineRowId, -1)"
+                      >
+                        −
+                      </button>
+                      <input
+                        type="number"
+                        min="0"
+                        [disabled]="lineOos[line.medicineRowId]"
+                        [(ngModel)]="lineQty[line.medicineRowId]"
+                        [name]="'qty-' + line.medicineRowId"
+                      />
+                      <button
+                        type="button"
+                        aria-label="Increase"
+                        [disabled]="lineOos[line.medicineRowId]"
+                        (click)="step(line.medicineRowId, 1)"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  <label class="oos">
+                    <ion-checkbox
+                      [(ngModel)]="lineOos[line.medicineRowId]"
+                      [name]="'oos-' + line.medicineRowId"
+                    ></ion-checkbox>
+                    <span>Out of stock</span>
+                  </label>
+                </div>
+              </div>
+            }
+          </div>
+
+          @if (bill) {
+            <div class="huda-card bill-card">
+              <div class="huda-card-pad">
+                <div class="bill-head">
+                  <div>
+                    <span class="huda-eyebrow">Medicine bill</span>
+                    <h2 class="huda-card-title">#{{ bill.billNumber }}</h2>
+                  </div>
+                  <huda-badge
+                    [label]="bill.paymentStatus"
+                    [variant]="badge(bill.paymentStatus)"
+                  ></huda-badge>
+                </div>
+
+                <div class="huda-dl">
+                  <div class="row">
+                    <span class="k">Grand total</span>
+                    <span class="v huda-mono">₹{{ rupees(bill.grandTotalPaise) }}</span>
+                  </div>
+                  <div class="row">
+                    <span class="k">Collected</span>
+                    <span class="v huda-mono">₹{{ rupees(bill.amountPaidPaise) }}</span>
+                  </div>
+                  <div class="row">
+                    <span class="k">Balance</span>
+                    <span class="v huda-mono">₹{{ rupees(balancePaise) }}</span>
+                  </div>
+                </div>
+
+                @if (!isPaid) {
+                  <div class="pay-block">
+                    <span class="huda-field-label">Payment method</span>
+                    <ion-segment class="huda-segment" [(ngModel)]="payMethod" name="payMethod">
+                      <ion-segment-button value="cash"><ion-label>Cash</ion-label></ion-segment-button>
+                      <ion-segment-button value="upi"><ion-label>UPI</ion-label></ion-segment-button>
+                      <ion-segment-button value="card"><ion-label>Card</ion-label></ion-segment-button>
+                    </ion-segment>
+
+                    <div class="huda-field amount">
+                      <label class="huda-field-label" for="payAmount">Amount collected (₹)</label>
+                      <input
+                        id="payAmount"
+                        class="huda-text-input mono"
+                        type="number"
+                        name="payAmount"
+                        [(ngModel)]="payAmountRupees"
+                      />
+                    </div>
+
+                    <ion-button
+                      class="huda-btn-ghost"
+                      expand="block"
+                      [disabled]="busy"
+                      (click)="recordPayment()"
+                    >
+                      Mark medicines paid
+                    </ion-button>
+                  </div>
+                }
+
+                <div class="share-block">
+                  <ion-button class="huda-btn-ghost" [disabled]="busy" (click)="whatsapp(false)">
+                    <ion-icon slot="start" name="logo-whatsapp"></ion-icon>
+                    Send bill on WhatsApp
+                  </ion-button>
+                  <ion-button class="huda-btn-ghost" [disabled]="busy" (click)="whatsapp(true)">
+                    <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+                    Send via Cloud API
+                  </ion-button>
+                  @if (bill.pdf?.fileUrl) {
+                    <a class="huda-link" [href]="bill.pdf.fileUrl" target="_blank" rel="noopener">
+                      Open PDF →
+                    </a>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="huda-rail">
+          <div class="huda-card huda-card-pad">
+            <h2 class="huda-card-title">Patient</h2>
+            <div class="patient-id">
+              <huda-avatar [name]="task.patientName" [size]="44"></huda-avatar>
+              <div>
+                <div class="pname">{{ task.patientName || 'Patient' }}</div>
+                @if (hasToken) {
+                  <div class="huda-eyebrow">Token #{{ task.appointmentToken }}</div>
+                }
+              </div>
+            </div>
+
+            <div class="huda-field contact">
+              <label class="huda-field-label" for="phone">Customer WhatsApp</label>
+              <input
+                id="phone"
+                class="huda-text-input mono"
+                type="tel"
+                name="phone"
+                placeholder="+91"
+                [(ngModel)]="phone"
+              />
+            </div>
+
+            <div class="huda-dl">
+              <div class="row">
+                <span class="k">Medicines</span>
+                <span class="v huda-mono">{{ task.lines?.length || 0 }}</span>
+              </div>
+              <div class="row">
+                <span class="k">To dispense now</span>
+                <span class="v huda-mono">{{ totalToDispense }}</span>
+              </div>
+              <div class="row">
+                <span class="k">Marked out of stock</span>
+                <span class="v huda-mono">{{ oosCount }}</span>
+              </div>
+            </div>
+
+            @if (task.status !== 'completed') {
+              <ion-button
+                class="huda-btn-primary commit"
+                expand="block"
+                [disabled]="busy"
+                (click)="complete()"
+              >
+                {{ busy ? 'Saving…' : 'Confirm dispense & bill' }}
+              </ion-button>
+              <p class="huda-hint">Stock is decremented FEFO and a medicine bill is issued.</p>
+            } @else {
+              <div class="done-note">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                <span>Dispense completed</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</ion-content>

@@ -1,0 +1,90 @@
+<ion-content class="huda-page">
+  <div class="huda-page-pad">
+    <huda-page-header
+      title="Settings"
+      subtitle="Session and connection details for this counter"
+      eyebrow="Account"
+    ></huda-page-header>
+
+    @if (auth.session; as s) {
+      <div class="huda-context-rail">
+        <div class="huda-stack">
+          <div class="huda-card huda-card-pad">
+            <h2 class="huda-card-title">Signed in as</h2>
+            <div class="identity">
+              <huda-avatar [name]="s.user.name" [size]="54"></huda-avatar>
+              <div>
+                <div class="uname">{{ s.user.name || 'Pharmacist' }}</div>
+                <div class="uemail huda-mono">{{ s.user.email }}</div>
+              </div>
+            </div>
+
+            <div class="huda-dl">
+              <div class="row">
+                <span class="k">Role</span>
+                <huda-badge [label]="s.membership.role" variant="info"></huda-badge>
+              </div>
+              <div class="row">
+                <span class="k">Username</span>
+                <span class="v huda-mono">{{ s.membership.username }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="huda-card huda-card-pad">
+            <h2 class="huda-card-title">Clinic</h2>
+            <div class="huda-dl">
+              <div class="row">
+                <span class="k">Name</span>
+                <span class="v">{{ s.clinic.name }}</span>
+              </div>
+              <div class="row">
+                <span class="k">Slug</span>
+                <span class="v huda-mono">{{ s.clinic.slug }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="huda-card huda-card-pad">
+            <h2 class="huda-card-title">Connection</h2>
+            <div class="huda-dl">
+              <div class="row">
+                <span class="k">API base</span>
+                <span class="v huda-mono small">{{ apiBase }}</span>
+              </div>
+              <div class="row">
+                <span class="k">Environment</span>
+                <huda-badge
+                  [label]="isProduction ? 'Production' : 'Development'"
+                  [variant]="isProduction ? 'success' : 'warning'"
+                ></huda-badge>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="huda-rail">
+          <div class="huda-card huda-card-pad">
+            <h2 class="huda-card-title">Session</h2>
+            <p class="huda-hint">
+              Signing out clears the saved tokens on this device. Anyone using this counter will
+              need to sign in again.
+            </p>
+            <ion-button class="huda-btn-ghost signout" expand="block" (click)="logout()">
+              <ion-icon slot="start" name="log-out-outline"></ion-icon>
+              Sign out
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <huda-empty-state
+        title="No active session"
+        body="Sign in with your clinic account to open the pharmacy counter."
+        icon="log-in-outline"
+      >
+        <ion-button class="huda-btn-primary" routerLink="/login">Go to sign in</ion-button>
+      </huda-empty-state>
+    }
+  </div>
+</ion-content>

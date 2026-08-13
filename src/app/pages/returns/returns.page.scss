@@ -1,0 +1,30 @@
+.note {
+  min-height: 72px;
+  resize: vertical;
+  font-family: var(--font-body);
+}
+
+.huda-error {
+  margin-bottom: 14px;
+}
+
+.option {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--ink-100);
+}
+
+.option:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.option p {
+  margin: 9px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.result {
+  margin-top: var(--card-gap);
+}

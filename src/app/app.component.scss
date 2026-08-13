@@ -1,119 +1,224 @@
-ion-menu ion-content {
-  --background: var(--ion-item-background, var(--ion-background-color, #fff));
+.huda-shell {
+  --side-max-width: var(--sidebar-width);
+  --side-min-width: var(--sidebar-width);
 }
 
-ion-menu.md ion-content {
-  --padding-start: 8px;
-  --padding-end: 8px;
-  --padding-top: 20px;
-  --padding-bottom: 20px;
+.huda-sidebar {
+  --width: var(--sidebar-width);
+  --background: #fff;
+  border-right: 1px solid var(--border-subtle);
+  max-width: var(--sidebar-width);
 }
 
-ion-menu.md ion-list {
-  padding: 20px 0;
+.huda-sidebar::part(container) {
+  background: #fff;
+  border-right: 1px solid var(--border-subtle);
 }
 
-ion-menu.md ion-note {
-  margin-bottom: 30px;
+.huda-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: var(--utility-height);
+  padding: 0 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: #fff;
 }
 
-ion-menu.md ion-list-header,
-ion-menu.md ion-note {
-  padding-left: 10px;
-}
-
-ion-menu.md ion-list#inbox-list {
-  border-bottom: 1px solid var(--ion-background-color-step-150, #d7d8da);
-}
-
-ion-menu.md ion-list#inbox-list ion-list-header {
-  font-size: 22px;
-  font-weight: 600;
-
-  min-height: 20px;
-}
-
-ion-menu.md ion-list#labels-list ion-list-header {
+.huda-sidebar-brand .mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: var(--grad-brand);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
   font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-brand);
+}
 
+.huda-sidebar-brand .product {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-strong);
+  line-height: 1.2;
+}
+
+.huda-sidebar-brand .clinic {
+  font-size: 12px;
+  color: var(--text-muted);
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.huda-sidebar-nav {
+  --background: #fff;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 16px;
+  --padding-bottom: 24px;
+}
+
+.nav-group {
   margin-bottom: 18px;
-
-  color: #757575;
-
-  min-height: 26px;
 }
 
-ion-menu.md ion-item {
-  --padding-start: 10px;
-  --padding-end: 10px;
-  border-radius: 4px;
-}
-
-ion-menu.md ion-item.selected {
-  --background: rgba(var(--ion-color-primary-rgb), 0.14);
-}
-
-ion-menu.md ion-item.selected ion-icon {
-  color: var(--ion-color-primary);
-}
-
-ion-menu.md ion-item ion-icon {
-  color: #616e7e;
-}
-
-ion-menu.md ion-item ion-label {
+.nav-group-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
   font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 0 10px 8px;
 }
 
-ion-menu.ios ion-content {
-  --padding-bottom: 20px;
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 2px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-body);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
 }
 
-ion-menu.ios ion-list {
-  padding: 20px 0 0 0;
+.nav-item ion-icon {
+  font-size: 20px;
+  color: var(--text-muted);
 }
 
-ion-menu.ios ion-note {
-  line-height: 24px;
-  margin-bottom: 20px;
+.nav-item:hover {
+  background: var(--ink-50);
 }
 
-ion-menu.ios ion-item {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --min-height: 50px;
+.nav-item.active {
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+  font-weight: 600;
 }
 
-ion-menu.ios ion-item.selected ion-icon {
-  color: var(--ion-color-primary);
+.nav-item.active ion-icon {
+  color: var(--brand-strong);
 }
 
-ion-menu.ios ion-item ion-icon {
-  font-size: 24px;
-  color: #73849a;
+.nav-item.logout {
+  color: var(--text-muted);
 }
 
-ion-menu.ios ion-list#labels-list ion-list-header {
-  margin-bottom: 8px;
+/* Queue count, not an alert — handoff §4.8 */
+.nav-badge {
+  margin-left: auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+  font-size: 10.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-ion-menu.ios ion-list-header,
-ion-menu.ios ion-note {
-  padding-left: 16px;
-  padding-right: 16px;
+/* Utility bar overlays main content; login has no bar */
+.huda-utility {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--utility-height);
+  min-height: var(--utility-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 var(--content-pad-x);
+  background: #fff;
+  border-bottom: 1px solid var(--border-subtle);
+  z-index: 100;
+  box-sizing: border-box;
 }
 
-ion-menu.ios ion-note {
-  margin-bottom: 8px;
+/* Pending work is not danger — keep alarm-red for real risk only */
+.utility-right .huda-icon-btn .dot {
+  background: var(--brand);
 }
 
-ion-note {
-  display: inline-block;
-  font-size: 16px;
-
-  color: var(--ion-color-medium-shade);
+.utility-left,
+.utility-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-ion-item.selected {
-  --color: var(--ion-color-primary);
+.menu-toggle {
+  display: none;
+  margin: 0;
+}
+
+@media (max-width: 991px) {
+  .menu-toggle {
+    display: block;
+  }
+}
+
+.utility-clinic {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-strong);
+  line-height: 1.2;
+}
+
+.utility-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: #fff;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-body);
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 560px) {
+  .user-name,
+  .utility-sub {
+    display: none;
+  }
+
+  .huda-utility {
+    padding: 0 16px;
+  }
 }

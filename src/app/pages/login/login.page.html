@@ -1,0 +1,61 @@
+<ion-content class="huda-auth-bg">
+  <div class="auth-wrap">
+    <div class="brand">
+      <div class="mark">H</div>
+      <div>
+        <div class="product">HUDA Medical</div>
+        <div class="huda-eyebrow">Pharmacy counter</div>
+      </div>
+    </div>
+
+    <div class="huda-card auth-card">
+      <div class="huda-card-pad">
+        <h1>Sign in</h1>
+        <p class="lead">Use your clinic account to open the dispense counter.</p>
+
+        <form (ngSubmit)="submit()">
+          <div class="huda-field">
+            <label class="huda-field-label" for="email">Email <span aria-hidden="true">*</span></label>
+            <input
+              id="email"
+              class="huda-text-input"
+              type="email"
+              name="email"
+              autocomplete="username"
+              placeholder="you@clinic.in"
+              [(ngModel)]="email"
+            />
+          </div>
+
+          <div class="huda-field">
+            <label class="huda-field-label" for="password">Password <span aria-hidden="true">*</span></label>
+            <input
+              id="password"
+              class="huda-text-input"
+              type="password"
+              name="password"
+              autocomplete="current-password"
+              placeholder="••••••••"
+              [(ngModel)]="password"
+            />
+          </div>
+
+          @if (error) {
+            <p class="huda-error">{{ error }}</p>
+          }
+
+          <ion-button
+            class="huda-btn-primary submit"
+            expand="block"
+            type="submit"
+            [disabled]="loading || !email || !password"
+          >
+            {{ loading ? 'Signing in…' : 'Sign in' }}
+          </ion-button>
+        </form>
+      </div>
+    </div>
+
+    <p class="foot huda-mono">HUDA ERP · Dr Amit Dhakoji Clinic</p>
+  </div>
+</ion-content>

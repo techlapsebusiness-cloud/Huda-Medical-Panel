@@ -1,0 +1,157 @@
+<ion-content class="huda-page">
+  <div class="huda-page-pad">
+    <huda-page-header
+      title="Day close"
+      subtitle="Reconcile the counter and lock the day's payments"
+      eyebrow="Business"
+    >
+      <div class="date-picker">
+        <label class="huda-field-label" for="date">Date</label>
+        <input
+          id="date"
+          class="huda-text-input mono"
+          type="date"
+          name="date"
+          [(ngModel)]="date"
+          (change)="load()"
+        />
+      </div>
+    </huda-page-header>
+
+    @if (error) {
+      <div class="huda-card huda-card-pad error-card">
+        <p class="huda-error">{{ error }}</p>
+      </div>
+    }
+
+    <div class="huda-ledger">
+      <div class="huda-card">
+        <div class="huda-card-pad ledger-head">
+          <div>
+            <h2 class="huda-card-title">Collections</h2>
+            <p class="huda-hint">{{ paymentCount }} payments recorded on {{ date }}</p>
+          </div>
+          <div class="total">
+            <div class="huda-eyebrow">Total</div>
+            <div class="huda-amount lg">₹{{ inr(totalPaise) }}</div>
+          </div>
+        </div>
+
+        @if (loading) {
+          <div class="huda-card-pad">
+            <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+          </div>
+        } @else if (!methodRows.length) {
+          <huda-empty-state
+            title="No payments on this date"
+            body="Collections recorded at the counter will appear here, split by payment method."
+            icon="cash-outline"
+          ></huda-empty-state>
+        } @else {
+          <div class="mix-wrap">
+            <div class="huda-mix">
+              @for (row of methodRows; track row.method) {
+                <div
+                  class="seg"
+                  [ngClass]="row.swatch"
+                  [style.width.%]="row.sharePct"
+                  [title]="row.label + ' ₹' + inr(row.paise)"
+                ></div>
+              }
+            </div>
+            <div class="huda-legend">
+              @for (row of methodRows; track row.method) {
+                <span class="item">
+                  <span class="swatch" [ngClass]="row.swatch"></span>
+                  {{ row.label }} · {{ row.sharePct }}%
+                </span>
+              }
+            </div>
+          </div>
+
+          <table class="huda-data-table">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th class="num">Share</th>
+                <th class="num">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of methodRows; track row.method) {
+                <tr>
+                  <td>
+                    <span class="method">
+                      <span class="swatch" [ngClass]="row.swatch"></span>
+                      {{ row.label }}
+                    </span>
+                  </td>
+                  <td class="num">{{ row.sharePct }}%</td>
+                  <td class="num">₹{{ inr(row.paise) }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <td class="foot-label">Total collected</td>
+                <td class="num"></td>
+                <td class="num foot-total">₹{{ inr(totalPaise) }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        }
+      </div>
+
+      <div class="huda-rail">
+        <div class="huda-card huda-card-pad">
+          <h2 class="huda-card-title">Status</h2>
+          <div class="huda-dl">
+            <div class="row">
+              <span class="k">Day</span>
+              <span class="v huda-mono">{{ date }}</span>
+            </div>
+            <div class="row">
+              <span class="k">State</span>
+              <huda-badge
+                [label]="isLocked ? 'Closed' : 'Open'"
+                [variant]="isLocked ? 'success' : 'info'"
+              ></huda-badge>
+            </div>
+            @if (isLocked && lockedAt) {
+              <div class="row">
+                <span class="k">Closed at</span>
+                <span class="v huda-mono">{{ lockedAt }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="cta-wrap">
+          @if (isLocked) {
+            <div class="huda-card huda-card-pad locked">
+              <ion-icon name="lock-closed-outline"></ion-icon>
+              <div>
+                <div class="locked-title">Payments locked</div>
+                <p class="huda-hint">No further collections can be recorded for this date.</p>
+              </div>
+            </div>
+          } @else {
+            <button
+              type="button"
+              class="huda-dark-cta"
+              [disabled]="busy || loading"
+              (click)="closeDay()"
+            >
+              <div class="label">{{ busy ? 'Closing…' : 'Close day & lock payments' }}</div>
+              <div class="sub">
+                Locks ₹{{ inr(totalPaise) }} across {{ paymentCount }} payments.
+                {{ isToday ? 'Do this after the last patient leaves.' : 'Closing a past date.' }}
+              </div>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

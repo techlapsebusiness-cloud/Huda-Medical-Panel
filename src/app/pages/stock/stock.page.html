@@ -1,0 +1,176 @@
+<ion-content class="huda-page">
+  <div class="huda-page-pad">
+    <huda-page-header
+      title="Stock"
+      subtitle="Receive purchases into the shared clinic inventory"
+      eyebrow="Inventory"
+    ></huda-page-header>
+
+    <div class="huda-kpi-strip three">
+      <div class="huda-kpi-tile">
+        <div class="label">Tracked drugs</div>
+        <div class="huda-kpi">{{ trackedCount }}</div>
+      </div>
+      <div class="huda-kpi-tile">
+        <div class="label">Low stock</div>
+        <div class="huda-kpi" [class.warn]="lowStockCount > 0">{{ lowStockCount }}</div>
+      </div>
+      <div class="huda-kpi-tile">
+        <div class="label">Expiring soon</div>
+        <div class="huda-kpi" [class.warn]="expiringCount > 0">{{ expiringCount }}</div>
+      </div>
+    </div>
+
+    @if (error) {
+      <div class="huda-card huda-card-pad notice">
+        <p class="huda-error">{{ error }}</p>
+      </div>
+    }
+    @if (message) {
+      <div class="huda-card huda-card-pad notice success">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        <span>{{ message }}</span>
+      </div>
+    }
+
+    <div class="huda-context-rail">
+      <div class="huda-card huda-form-narrow">
+        <div class="huda-card-pad">
+          <h2 class="huda-card-title">Receive stock</h2>
+
+          <div class="huda-field">
+            <span class="huda-field-label">Medicine <span aria-hidden="true">*</span></span>
+            @if (selectedName) {
+              <div class="picked">
+                <span class="huda-chip brand">
+                  <ion-icon name="cube-outline"></ion-icon>
+                  {{ selectedName }}
+                </span>
+                <button type="button" class="huda-link" (click)="clearPick()">Change</button>
+              </div>
+            } @else {
+              <ion-searchbar
+                class="huda-search"
+                [(ngModel)]="q"
+                name="drugSearch"
+                debounce="350"
+                placeholder="Search brand or generic"
+                (ionInput)="search()"
+              ></ion-searchbar>
+
+              @if (drugs.length) {
+                <div class="pick-list">
+                  @for (d of drugs; track d.id || d._id) {
+                    <button type="button" class="pick-row" (click)="pick(d)">
+                      <span class="pick-name">{{ d.brand_name || d.brandName }} {{ d.strength }}</span>
+                      <span class="pick-sub">{{ d.generic_name || d.genericName }}</span>
+                    </button>
+                  }
+                </div>
+              }
+            }
+          </div>
+
+          <div class="huda-field-grid">
+            <div class="huda-field">
+              <label class="huda-field-label" for="batch">Batch number <span aria-hidden="true">*</span></label>
+              <input
+                id="batch"
+                class="huda-text-input mono"
+                name="batchNo"
+                placeholder="e.g. B24A17"
+                [(ngModel)]="receive.batchNo"
+              />
+            </div>
+            <div class="huda-field">
+              <label class="huda-field-label" for="qty">Quantity</label>
+              <input
+                id="qty"
+                class="huda-text-input mono"
+                type="number"
+                min="1"
+                name="qty"
+                [(ngModel)]="receive.qty"
+              />
+            </div>
+            <div class="huda-field">
+              <label class="huda-field-label" for="mrp">MRP per unit (₹)</label>
+              <input
+                id="mrp"
+                class="huda-text-input mono"
+                type="number"
+                min="0"
+                step="0.01"
+                name="mrpRupees"
+                [(ngModel)]="mrpRupees"
+              />
+            </div>
+            <div class="huda-field">
+              <label class="huda-field-label" for="cost">Cost per unit (₹)</label>
+              <input
+                id="cost"
+                class="huda-text-input mono"
+                type="number"
+                min="0"
+                step="0.01"
+                name="costRupees"
+                [(ngModel)]="costRupees"
+              />
+            </div>
+            <div class="huda-field span-2">
+              <label class="huda-field-label" for="expiry">Expiry date</label>
+              <input
+                id="expiry"
+                class="huda-text-input mono"
+                type="date"
+                name="expiryDate"
+                [(ngModel)]="receive.expiryDate"
+              />
+              <p class="huda-hint">Used for FEFO ordering at the counter.</p>
+            </div>
+          </div>
+
+          <ion-button
+            class="huda-btn-primary"
+            expand="block"
+            [disabled]="!receive.drugId || !receive.batchNo"
+            (click)="submitReceive()"
+          >
+            Receive into inventory
+          </ion-button>
+        </div>
+      </div>
+
+      <div class="huda-rail">
+        <div class="huda-card huda-card-pad">
+          <h2 class="huda-card-title">Before you receive</h2>
+          <ul class="guide">
+            <li>Match the batch number and expiry to the physical strip, not the invoice line.</li>
+            <li>MRP drives what the patient is billed; cost drives the profit figure in analytics.</li>
+            <li>Lots without an expiry are dispensed last.</li>
+          </ul>
+        </div>
+
+        <div class="huda-card huda-card-pad rail-next">
+          <h2 class="huda-card-title">Stock health</h2>
+          <div class="huda-dl">
+            <div class="row">
+              <span class="k">Low stock</span>
+              <huda-badge
+                [label]="lowStockCount + ' drugs'"
+                [variant]="lowStockCount > 0 ? 'warning' : 'success'"
+              ></huda-badge>
+            </div>
+            <div class="row">
+              <span class="k">Expiring soon</span>
+              <huda-badge
+                [label]="expiringCount + ' lots'"
+                [variant]="expiringCount > 0 ? 'warning' : 'success'"
+              ></huda-badge>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

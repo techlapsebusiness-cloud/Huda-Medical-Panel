@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'medical-panel',
+  appId: 'com.huda.medicalpanel',
+  appName: 'HUDA Medical',
   webDir: 'www'
 };
 

@@ -1,0 +1,124 @@
+.error-card {
+  margin-bottom: var(--card-gap);
+}
+
+.search-head {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.search-head .huda-card-title {
+  margin-bottom: 12px;
+}
+
+.drug-name {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.drug-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.add-icon {
+  font-size: 22px;
+  color: var(--brand);
+}
+
+/* Cart rail */
+.cart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cart-head .huda-card-title {
+  margin: 0;
+}
+
+.cart-lines {
+  margin-top: 14px;
+}
+
+.cart-line {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ink-100);
+}
+
+.cart-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-bottom: 8px;
+}
+
+.cart-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.huda-qty.compact button {
+  width: 36px;
+  height: 36px;
+  font-size: 17px;
+}
+
+.huda-qty.compact input {
+  width: 52px;
+  height: 36px;
+}
+
+.remove {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-input);
+  background: #fff;
+  color: var(--text-faint);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove:hover {
+  color: var(--danger-500);
+  border-color: var(--danger-50);
+  background: var(--danger-50);
+}
+
+.totals {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ink-100);
+}
+
+.customer {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--ink-100);
+}
+
+/* Issued bill */
+.issued {
+  margin-top: var(--card-gap);
+}
+
+.issued-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.issued-head .huda-card-title {
+  margin: 2px 0 0;
+}
+
+.pay {
+  margin-top: 18px;
+}

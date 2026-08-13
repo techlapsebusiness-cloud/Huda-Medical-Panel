@@ -1,0 +1,138 @@
+.scan-card {
+  margin-bottom: var(--card-gap);
+}
+
+.scan-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.scan-row .huda-text-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.scan-row ion-button {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.huda-hint {
+  margin-top: 10px;
+}
+
+.recent {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ink-100);
+}
+
+.recent-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.recent-chips .huda-chip {
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+}
+
+.recent-chips .huda-chip:hover {
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+}
+
+/* Result */
+.result-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--ink-100);
+}
+
+.result-name {
+  margin: 3px 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text-strong);
+}
+
+.result-generic {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.result-dl {
+  margin-top: 18px;
+}
+
+.result-dl .v.small {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.no-lot {
+  margin-top: 18px;
+}
+
+/* Rail */
+.option {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--ink-100);
+}
+
+.option:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.option p {
+  margin: 9px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.rail-next {
+  margin-top: var(--card-gap);
+}
+
+.rail-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 0;
+  border-top: 1px solid var(--ink-100);
+  color: var(--text-body);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.rail-link:first-of-type {
+  border-top: none;
+}
+
+.rail-link ion-icon {
+  font-size: 18px;
+  color: var(--brand-strong);
+}
+
+.rail-link .chev {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: 15px;
+}
+
+.rail-link:hover {
+  color: var(--brand-strong);
+}

@@ -1,0 +1,149 @@
+.error-card {
+  margin-bottom: var(--card-gap);
+}
+
+.lines-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.lines-head .huda-card-title {
+  margin: 0;
+}
+
+.line-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 11px;
+}
+
+.lots .huda-chip ion-icon {
+  font-size: 13px;
+}
+
+.line-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.qty-field .huda-field-label {
+  margin-bottom: 7px;
+}
+
+.oos {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: var(--touch-target);
+  font-size: 13.5px;
+  color: var(--text-body);
+  cursor: pointer;
+}
+
+.oos ion-checkbox {
+  --size: 20px;
+  --checkbox-background-checked: var(--brand);
+  --border-radius: 6px;
+}
+
+/* Bill */
+.bill-card {
+  margin-top: var(--card-gap);
+}
+
+.bill-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.bill-head .huda-card-title {
+  margin: 2px 0 0;
+}
+
+.pay-block {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--ink-100);
+}
+
+.pay-block ion-segment {
+  margin-bottom: 16px;
+}
+
+.pay-block .amount {
+  max-width: 240px;
+}
+
+.share-block {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ink-100);
+}
+
+/* Rail */
+.patient-id {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.pname {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-strong);
+}
+
+.contact {
+  margin-bottom: 18px;
+}
+
+.commit {
+  margin-top: 20px;
+}
+
+.huda-hint {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.done-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: var(--radius-input);
+  background: var(--success-50);
+  color: var(--success-500);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.done-note ion-icon {
+  font-size: 18px;
+}

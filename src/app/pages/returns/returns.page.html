@@ -1,0 +1,131 @@
+<ion-content class="huda-page">
+  <div class="huda-page-pad">
+    <huda-page-header
+      title="Returns"
+      subtitle="Take medicines back against an issued bill"
+      eyebrow="Inventory"
+    ></huda-page-header>
+
+    <div class="huda-context-rail">
+      <div class="huda-card huda-form-narrow">
+        <div class="huda-card-pad">
+          <h2 class="huda-card-title">Return details</h2>
+
+          <div class="huda-field-grid">
+            <div class="huda-field span-2">
+              <label class="huda-field-label" for="billId">Bill ID <span aria-hidden="true">*</span></label>
+              <input
+                id="billId"
+                class="huda-text-input mono"
+                name="billId"
+                placeholder="Paste the bill identifier"
+                [(ngModel)]="billId"
+              />
+            </div>
+            <div class="huda-field">
+              <label class="huda-field-label" for="lotId">Lot ID <span aria-hidden="true">*</span></label>
+              <input
+                id="lotId"
+                class="huda-text-input mono"
+                name="lotId"
+                placeholder="Lot the strip came from"
+                [(ngModel)]="lotId"
+              />
+            </div>
+            <div class="huda-field">
+              <span class="huda-field-label">Quantity</span>
+              <div class="huda-qty">
+                <button type="button" aria-label="Decrease" [disabled]="qty <= 1" (click)="step(-1)">
+                  −
+                </button>
+                <input type="number" min="1" name="qty" [(ngModel)]="qty" />
+                <button type="button" aria-label="Increase" (click)="step(1)">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="huda-field">
+            <span class="huda-field-label">Outcome</span>
+            <ion-segment class="huda-segment" [(ngModel)]="mode" name="mode">
+              <ion-segment-button value="return_restock">
+                <ion-label>Restock</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="return_writeoff">
+                <ion-label>Write off</ion-label>
+              </ion-segment-button>
+            </ion-segment>
+            <p class="huda-hint">{{ modeHint }}</p>
+          </div>
+
+          <div class="huda-field">
+            <label class="huda-field-label" for="note">Note</label>
+            <textarea
+              id="note"
+              class="huda-text-input note"
+              name="note"
+              rows="3"
+              placeholder="Why is this coming back?"
+              [(ngModel)]="note"
+            ></textarea>
+          </div>
+
+          @if (error) {
+            <p class="huda-error">{{ error }}</p>
+          }
+
+          <ion-button
+            class="huda-btn-primary"
+            expand="block"
+            [disabled]="busy || !billId.trim() || !lotId.trim()"
+            (click)="submit()"
+          >
+            {{ busy ? 'Processing…' : 'Process return' }}
+          </ion-button>
+        </div>
+      </div>
+
+      <div class="huda-rail">
+        <div class="huda-card huda-card-pad">
+          <h2 class="huda-card-title">Restock or write off?</h2>
+          <div class="option">
+            <huda-badge label="Restock" variant="success"></huda-badge>
+            <p>
+              The strip is sealed, unexpired and fit to sell again. Quantity goes back into the
+              original lot and stays available for FEFO.
+            </p>
+          </div>
+          <div class="option">
+            <huda-badge label="Write off" variant="danger"></huda-badge>
+            <p>
+              Damaged, opened, expired or cold-chain broken. The value leaves inventory and shows
+              as loss in analytics.
+            </p>
+          </div>
+        </div>
+
+        @if (lastResult) {
+          <div class="huda-card huda-card-pad result">
+            <h2 class="huda-card-title">Last return</h2>
+            <div class="huda-dl">
+              <div class="row">
+                <span class="k">Outcome</span>
+                <huda-badge
+                  [label]="lastResult.label"
+                  [variant]="lastResult.variant"
+                ></huda-badge>
+              </div>
+              <div class="row">
+                <span class="k">Quantity</span>
+                <span class="v huda-mono">{{ lastResult.qty }}</span>
+              </div>
+              <div class="row">
+                <span class="k">Bill</span>
+                <span class="v huda-mono">{{ lastResult.billId }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</ion-content>

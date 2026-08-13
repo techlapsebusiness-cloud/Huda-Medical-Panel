@@ -1,0 +1,147 @@
+<ion-content class="huda-page">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($any($event))">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="huda-page-pad">
+    <huda-page-header
+      title="Dispense queue"
+      subtitle="Prescriptions waiting at the pharmacy counter"
+      eyebrow="Counter"
+    >
+      <ion-button class="huda-btn-primary" [disabled]="!nextTask" (click)="open(nextTask)">
+        <ion-icon slot="start" name="play-outline"></ion-icon>
+        Serve next
+      </ion-button>
+    </huda-page-header>
+
+    <div class="huda-kpi-strip">
+      <div class="huda-kpi-tile">
+        <div class="label">Pending</div>
+        <div class="huda-kpi">{{ pendingCount }}</div>
+      </div>
+      <div class="huda-kpi-tile">
+        <div class="label">Partially dispensed</div>
+        <div class="huda-kpi">{{ partialCount }}</div>
+      </div>
+      <div class="huda-kpi-tile">
+        <div class="label">Medicines queued</div>
+        <div class="huda-kpi">{{ medicineCount }}</div>
+      </div>
+      <div class="huda-kpi-tile">
+        <div class="label">Average wait</div>
+        <div class="huda-kpi">{{ averageWait }}</div>
+      </div>
+    </div>
+
+    @if (error) {
+      <div class="huda-card huda-card-pad error-card">
+        <p class="huda-error">{{ error }}</p>
+      </div>
+    }
+
+    <div class="huda-list-panel">
+      <div class="huda-card">
+        <div class="huda-card-pad list-head">
+          <h2 class="huda-card-title">Waiting</h2>
+          <ion-searchbar
+            class="huda-search"
+            [(ngModel)]="q"
+            placeholder="Token, name or phone"
+            debounce="400"
+            (ionInput)="refresh()"
+          ></ion-searchbar>
+        </div>
+
+        @if (loading && !tasks.length) {
+          <div class="loading">
+            <ion-spinner name="dots"></ion-spinner>
+          </div>
+        } @else if (!tasks.length) {
+          <huda-empty-state
+            title="No prescriptions waiting"
+            body="Finalized prescriptions appear here as soon as a doctor sends them to the pharmacy counter."
+            icon="medkit-outline"
+          ></huda-empty-state>
+        } @else {
+          <div class="huda-table">
+            <div class="col-head">Token · Patient · Wait</div>
+            <ion-list lines="full">
+              @for (t of tasks; track t.id) {
+                <ion-item button detail="false" (click)="open(t)">
+                  <huda-avatar slot="start" [name]="t.patientName"></huda-avatar>
+                  <ion-label>
+                    <h2 class="row-name">
+                      @if (hasToken(t)) {
+                        <span class="token huda-mono">#{{ t.appointmentToken }}</span>
+                      }
+                      {{ t.patientName || 'Patient' }}
+                    </h2>
+                    <p class="row-meta">
+                      {{ t.lines?.length || 0 }} medicines · {{ t.doctorName || 'Doctor' }}
+                    </p>
+                    <p class="row-meta">{{ t.patientPhone || 'No phone on file' }}</p>
+                  </ion-label>
+                  <div class="row-end" slot="end">
+                    <span class="wait huda-mono">{{ waitMins(t.createdAt) }}</span>
+                    <huda-badge [label]="t.status" [variant]="badge(t.status)"></huda-badge>
+                  </div>
+                </ion-item>
+              }
+            </ion-list>
+          </div>
+        }
+      </div>
+
+      <div class="huda-rail">
+        @if (nextTask) {
+          <div class="huda-inverse next-up">
+            <div class="huda-eyebrow light">Next at counter</div>
+            @if (hasToken(nextTask)) {
+              <div class="token">#{{ nextTask.appointmentToken }}</div>
+            } @else {
+              <div class="token no-token">—</div>
+            }
+            <div class="name">{{ nextTask.patientName || 'Patient' }}</div>
+            <div class="muted">Waiting {{ waitMins(nextTask.createdAt) }}</div>
+
+            <div class="stats">
+              <div class="stat">
+                <div class="k">Medicines</div>
+                <div class="v huda-mono">{{ nextTask.lines?.length || 0 }}</div>
+              </div>
+              <div class="stat">
+                <div class="k">Longest wait</div>
+                <div class="v huda-mono">{{ longestWait }}</div>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="huda-card huda-card-pad">
+            <h2 class="huda-card-title">Counter clear</h2>
+            <p class="huda-hint">Nothing is waiting to be dispensed right now.</p>
+          </div>
+        }
+
+        <div class="huda-card huda-card-pad rail-links">
+          <h2 class="huda-card-title">Quick actions</h2>
+          <a class="rail-link" routerLink="/otc">
+            <ion-icon name="cart-outline"></ion-icon>
+            <span>Walk-in OTC sale</span>
+            <ion-icon class="chev" name="chevron-forward-outline"></ion-icon>
+          </a>
+          <a class="rail-link" routerLink="/scanner">
+            <ion-icon name="barcode-outline"></ion-icon>
+            <span>Barcode lookup</span>
+            <ion-icon class="chev" name="chevron-forward-outline"></ion-icon>
+          </a>
+          <a class="rail-link" routerLink="/stock">
+            <ion-icon name="cube-outline"></ion-icon>
+            <span>Receive stock</span>
+            <ion-icon class="chev" name="chevron-forward-outline"></ion-icon>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

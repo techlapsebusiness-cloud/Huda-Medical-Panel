@@ -1,0 +1,151 @@
+<ion-content class="huda-page">
+  <div class="huda-page-pad">
+    <huda-page-header
+      title="Barcode lookup"
+      subtitle="Identify a medicine or lot from its barcode or batch number"
+      eyebrow="Counter"
+    ></huda-page-header>
+
+    <div class="huda-context-rail">
+      <div>
+        <div class="huda-card huda-card-pad scan-card">
+          <label class="huda-field-label" for="code">Barcode or batch number</label>
+          <div class="scan-row">
+            <input
+              id="code"
+              class="huda-text-input mono"
+              name="code"
+              placeholder="Scan or type a code"
+              autocomplete="off"
+              [(ngModel)]="code"
+              (keyup.enter)="lookup()"
+            />
+            <ion-button
+              class="huda-btn-primary"
+              [disabled]="busy || !code.trim()"
+              (click)="lookup()"
+            >
+              {{ busy ? 'Looking up…' : 'Look up' }}
+            </ion-button>
+          </div>
+          <p class="huda-hint">
+            A USB scanner types the code and presses enter, so this field works with hardware as-is.
+          </p>
+
+          @if (recent.length) {
+            <div class="recent">
+              <span class="huda-eyebrow">Recent</span>
+              <div class="recent-chips">
+                @for (c of recent; track c) {
+                  <button type="button" class="huda-chip" (click)="useRecent(c)">{{ c }}</button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (error) {
+          <div class="huda-card result-card">
+            <huda-empty-state title="No match found" [body]="error" icon="alert-circle-outline">
+              <ion-button class="huda-btn-ghost" (click)="clear()">Try another code</ion-button>
+            </huda-empty-state>
+          </div>
+        } @else if (result) {
+          <div class="huda-card result-card">
+            <div class="huda-card-pad">
+              <div class="result-head">
+                <div>
+                  <span class="huda-eyebrow">{{ isLot ? 'Inventory lot' : 'Catalogue drug' }}</span>
+                  <h2 class="result-name">{{ drugName }}</h2>
+                  @if (genericName) {
+                    <p class="result-generic">{{ genericName }}</p>
+                  }
+                </div>
+                @if (isLot) {
+                  <huda-badge [label]="stockLabel" [variant]="stockVariant"></huda-badge>
+                }
+              </div>
+
+              @if (isLot) {
+                <div class="huda-dl result-dl">
+                  <div class="row">
+                    <span class="k">Batch</span>
+                    <span class="v huda-mono">{{ result.batchNo || '—' }}</span>
+                  </div>
+                  <div class="row">
+                    <span class="k">Quantity on hand</span>
+                    <span class="v huda-mono">{{ result.qtyOnHand ?? 0 }}</span>
+                  </div>
+                  <div class="row">
+                    <span class="k">MRP per unit</span>
+                    <span class="v huda-mono">₹{{ inr(result.mrpPaise) }}</span>
+                  </div>
+                  <div class="row">
+                    <span class="k">Expiry</span>
+                    <huda-badge [label]="expiryLabel" [variant]="expiryVariant"></huda-badge>
+                  </div>
+                  <div class="row">
+                    <span class="k">Lot ID</span>
+                    <span class="v huda-mono small">{{ result.lotId }}</span>
+                  </div>
+                </div>
+              } @else {
+                <p class="huda-hint no-lot">
+                  This code matches a catalogue entry but not a specific lot. Receive stock against
+                  it before dispensing.
+                </p>
+                <div class="huda-dl result-dl">
+                  <div class="row">
+                    <span class="k">Drug ID</span>
+                    <span class="v huda-mono small">{{ result.drugId }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        } @else if (!searched) {
+          <div class="huda-card result-card">
+            <huda-empty-state
+              title="Scan a code to begin"
+              body="Look up a strip to confirm the medicine, batch, expiry and stock on hand before handing it over."
+              icon="barcode-outline"
+            ></huda-empty-state>
+          </div>
+        }
+      </div>
+
+      <div class="huda-rail">
+        <div class="huda-card huda-card-pad">
+          <h2 class="huda-card-title">What gets matched</h2>
+          <div class="option">
+            <huda-badge label="Lot" variant="info"></huda-badge>
+            <p>
+              A barcode or batch number on a physical strip. Returns stock on hand, MRP and expiry.
+            </p>
+          </div>
+          <div class="option">
+            <huda-badge label="Drug" variant="neutral"></huda-badge>
+            <p>
+              A catalogue barcode or exact brand name. No lot is attached, so nothing can be
+              dispensed from it yet.
+            </p>
+          </div>
+        </div>
+
+        <div class="huda-card huda-card-pad rail-next">
+          <h2 class="huda-card-title">Next step</h2>
+          <a class="rail-link" routerLink="/stock">
+            <ion-icon name="cube-outline"></ion-icon>
+            <span>Receive this stock</span>
+            <ion-icon class="chev" name="chevron-forward-outline"></ion-icon>
+          </a>
+          <a class="rail-link" routerLink="/otc">
+            <ion-icon name="cart-outline"></ion-icon>
+            <span>Sell over the counter</span>
+            <ion-icon class="chev" name="chevron-forward-outline"></ion-icon>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

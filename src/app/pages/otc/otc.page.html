@@ -1,0 +1,169 @@
+<ion-content class="huda-page">
+  <div class="huda-page-pad">
+    <huda-page-header
+      title="Walk-in sale"
+      subtitle="Over-the-counter medicines billed without a prescription"
+      eyebrow="Counter"
+    ></huda-page-header>
+
+    @if (error) {
+      <div class="huda-card huda-card-pad error-card">
+        <p class="huda-error">{{ error }}</p>
+      </div>
+    }
+
+    <div class="huda-workspace">
+      <div class="huda-card">
+        <div class="huda-card-pad search-head">
+          <h2 class="huda-card-title">Find medicine</h2>
+          <ion-searchbar
+            class="huda-search"
+            [(ngModel)]="q"
+            name="search"
+            debounce="350"
+            placeholder="Brand or generic name"
+            (ionInput)="search()"
+          ></ion-searchbar>
+        </div>
+
+        @if (!results.length) {
+          <huda-empty-state
+            title="Search the catalogue"
+            body="Type a brand or generic name to add medicines to this sale."
+            icon="search-outline"
+          ></huda-empty-state>
+        } @else {
+          <div class="huda-table">
+            <div class="col-head">Medicine · Generic</div>
+            <ion-list lines="full">
+              @for (d of results; track d.id || d._id) {
+                <ion-item button detail="false" (click)="add(d)">
+                  <ion-label>
+                    <h2 class="drug-name">{{ d.brand_name || d.brandName }}</h2>
+                    <p class="drug-sub">
+                      {{ d.generic_name || d.genericName }} {{ d.strength }}
+                    </p>
+                  </ion-label>
+                  <ion-icon slot="end" class="add-icon" name="add-circle-outline"></ion-icon>
+                </ion-item>
+              }
+            </ion-list>
+          </div>
+        }
+      </div>
+
+      <div class="huda-rail">
+        <div class="huda-card huda-card-pad">
+          <div class="cart-head">
+            <h2 class="huda-card-title">Cart</h2>
+            <span class="huda-chip brand huda-mono">{{ cart.length }}</span>
+          </div>
+
+          @if (!cart.length) {
+            <p class="huda-hint">No items yet. Tap a medicine to add it.</p>
+          } @else {
+            <div class="cart-lines">
+              @for (c of cart; track c.drugId) {
+                <div class="cart-line">
+                  <div class="cart-name">{{ c.name }}</div>
+                  <div class="cart-controls">
+                    <div class="huda-qty compact">
+                      <button type="button" aria-label="Decrease" (click)="step(c, -1)">−</button>
+                      <input
+                        type="number"
+                        min="1"
+                        [(ngModel)]="c.qty"
+                        [name]="'qty-' + c.drugId"
+                      />
+                      <button type="button" aria-label="Increase" (click)="step(c, 1)">+</button>
+                    </div>
+                    <button
+                      type="button"
+                      class="remove"
+                      aria-label="Remove"
+                      (click)="remove(c)"
+                    >
+                      <ion-icon name="close-outline"></ion-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="huda-dl totals">
+              <div class="row">
+                <span class="k">Units</span>
+                <span class="v huda-mono">{{ totalUnits }}</span>
+              </div>
+            </div>
+          }
+
+          <div class="customer">
+            <div class="huda-field">
+              <label class="huda-field-label" for="cust">Customer name</label>
+              <input
+                id="cust"
+                class="huda-text-input"
+                name="customerName"
+                placeholder="Optional"
+                [(ngModel)]="customerName"
+              />
+            </div>
+            <div class="huda-field">
+              <label class="huda-field-label" for="phone">WhatsApp phone</label>
+              <input
+                id="phone"
+                class="huda-text-input mono"
+                type="tel"
+                name="customerPhone"
+                placeholder="+91"
+                [(ngModel)]="customerPhone"
+              />
+            </div>
+          </div>
+
+          <ion-button
+            class="huda-btn-primary"
+            expand="block"
+            [disabled]="busy || !cart.length"
+            (click)="checkout()"
+          >
+            {{ busy ? 'Issuing…' : 'Issue pharmacy bill' }}
+          </ion-button>
+        </div>
+
+        @if (bill) {
+          <div class="huda-card huda-card-pad issued">
+            <div class="issued-head">
+              <div>
+                <span class="huda-eyebrow">Bill issued</span>
+                <h2 class="huda-card-title">#{{ bill.billNumber }}</h2>
+              </div>
+              <huda-badge
+                [label]="bill.paymentStatus || 'issued'"
+                [variant]="badge(bill.paymentStatus || 'issued')"
+              ></huda-badge>
+            </div>
+
+            <div class="huda-dl">
+              <div class="row">
+                <span class="k">Grand total</span>
+                <span class="v huda-mono">₹{{ rupees(bill.grandTotalPaise) }}</span>
+              </div>
+            </div>
+
+            <ion-button
+              class="huda-btn-ghost pay"
+              expand="block"
+              [disabled]="busy"
+              (click)="payAndWhatsapp()"
+            >
+              <ion-icon slot="start" name="logo-whatsapp"></ion-icon>
+              Mark paid & send bill
+            </ion-button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</ion-content>
