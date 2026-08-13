@@ -53,3 +53,4 @@ The app follows the HUDA / Groweb design system — see `docs/HUDA-ERP-UI-HANDOF
 Pages compose `div.huda-card` on top of Ionic primitives rather than using `ion-card`, and every
 value comes from a token. Light palette only; no chart libraries.
 # Huda-Medical-Panel
+# Huda-Medical-Panel
