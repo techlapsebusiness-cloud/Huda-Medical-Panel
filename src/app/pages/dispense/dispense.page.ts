@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { PharmacyApiService } from '../../core/services/pharmacy-api.service';
+import { CounterStateService } from '../../core/services/counter-state.service';
 import { AlertController, ToastController } from '@ionic/angular';
 import { hudaRupees, hudaStatusBadge, type HudaBadgeVariant } from '../../shared/ui';
 
@@ -28,8 +29,8 @@ export class DispensePage implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private api: PharmacyApiService,
+    private counter: CounterStateService,
     private toast: ToastController,
     private alert: AlertController
   ) {}
@@ -93,10 +94,18 @@ export class DispensePage implements OnInit {
       this.bill = result.bill;
       if (this.bill) {
         this.payAmountRupees = ((this.bill.grandTotalPaise || 0) / 100).toFixed(2);
+        try {
+          const collect = await this.api.listCollectBills('unpaid,partial');
+          this.counter.setCollect(collect.length);
+        } catch {
+          /* badge is best-effort */
+        }
       }
       const t = await this.toast.create({
-        message: 'Dispense saved',
-        duration: 2000,
+        message: this.bill
+          ? 'Dispense saved — collect payment below or in Bill & Collect'
+          : 'Dispense saved',
+        duration: 2500,
         color: 'success',
       });
       await t.present();

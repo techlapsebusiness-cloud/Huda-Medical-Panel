@@ -44,6 +44,15 @@
                       {{ d.generic_name || d.genericName }} {{ d.strength }}
                     </p>
                   </ion-label>
+                  <span
+                    slot="end"
+                    class="huda-chip"
+                    [class.danger]="stockClass(d) === 'danger'"
+                    [class.warning]="stockClass(d) === 'warning'"
+                    [class.success]="stockClass(d) === 'success'"
+                  >
+                    {{ stockLabel(d) }}
+                  </span>
                   <ion-icon slot="end" class="add-icon" name="add-circle-outline"></ion-icon>
                 </ion-item>
               }

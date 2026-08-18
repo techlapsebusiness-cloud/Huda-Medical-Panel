@@ -34,6 +34,12 @@ export class QueuePage implements OnInit {
     try {
       this.tasks = await this.api.listTasks(undefined, this.q || undefined);
       this.counter.setPending(this.pendingCount);
+      try {
+        const collect = await this.api.listCollectBills('unpaid,partial');
+        this.counter.setCollect(collect.length);
+      } catch {
+        /* collect badge is best-effort */
+      }
     } catch (e: any) {
       this.error = e?.error?.error?.message || 'Failed to load queue';
     } finally {

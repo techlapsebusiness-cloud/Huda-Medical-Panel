@@ -1,0 +1,60 @@
+.error-card {
+  margin-bottom: var(--card-gap);
+}
+
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+}
+
+.list-head .huda-card-title {
+  margin: 0;
+}
+
+.list-head ion-searchbar {
+  max-width: 280px;
+  min-width: 200px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.row-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.token {
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+  border-radius: 8px;
+  padding: 1px 7px;
+  font-size: 12px;
+}
+
+.row-meta {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.row-end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.amount {
+  font-weight: 600;
+  color: var(--text-strong);
+}

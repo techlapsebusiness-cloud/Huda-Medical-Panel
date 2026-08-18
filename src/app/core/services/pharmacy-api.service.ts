@@ -113,6 +113,15 @@ export class PharmacyApiService {
     ).then((r) => r.data);
   }
 
+  listCollectBills(paymentStatus?: string, q?: string) {
+    let params = new HttpParams();
+    if (paymentStatus) params = params.set('paymentStatus', paymentStatus);
+    if (q) params = params.set('q', q);
+    return firstValueFrom(
+      this.http.get<{ data: any[] }>(`${this.base()}/bills`, { params })
+    ).then((r) => r.data);
+  }
+
   dayClose(date?: string) {
     return firstValueFrom(
       this.http.post<{ data: any }>(`${this.projectBase()}/payments/day-close`, {

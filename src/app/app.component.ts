@@ -7,12 +7,13 @@ interface MenuEntry {
   title: string;
   url: string;
   icon: string;
-  badge?: boolean;
+  badge?: 'pending' | 'collect';
   group: 'counter' | 'inventory' | 'business' | 'account';
 }
 
 const ALL_PAGES: MenuEntry[] = [
-  { title: 'Dispense queue', url: '/queue', icon: 'medkit-outline', badge: true, group: 'counter' },
+  { title: 'Dispense queue', url: '/queue', icon: 'medkit-outline', badge: 'pending', group: 'counter' },
+  { title: 'Bill & Collect', url: '/collect', icon: 'cash-outline', badge: 'collect', group: 'counter' },
   { title: 'OTC sale', url: '/otc', icon: 'cart-outline', group: 'counter' },
   { title: 'Barcode lookup', url: '/scanner', icon: 'barcode-outline', group: 'counter' },
   { title: 'Stock / receive', url: '/stock', icon: 'cube-outline', group: 'inventory' },
@@ -35,6 +36,7 @@ export class AppComponent {
   readonly role = computed(() => this.auth.sessionState()?.membership?.role ?? 'Pharmacy counter');
   readonly initials = computed(() => hudaInitials(this.memberName()));
   readonly pending = this.counter.pendingCount;
+  readonly collect = this.counter.collectCount;
 
   readonly counterPages = ALL_PAGES.filter((p) => p.group === 'counter');
   readonly inventoryPages = ALL_PAGES.filter((p) => p.group === 'inventory');

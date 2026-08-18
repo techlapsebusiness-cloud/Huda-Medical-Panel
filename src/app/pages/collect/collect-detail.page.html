@@ -1,0 +1,135 @@
+<ion-header class="huda-ion-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/collect" text=""></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="huda-page">
+  <div class="huda-page-pad">
+    @if (loading) {
+      <div class="huda-card huda-card-pad">
+        <ion-skeleton-text animated style="width: 45%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+      </div>
+    } @else if (!bill) {
+      <huda-empty-state
+        title="Bill not available"
+        [body]="error || 'This medicine bill could not be loaded.'"
+        icon="alert-circle-outline"
+      >
+        <ion-button class="huda-btn-ghost" routerLink="/collect">Back to collect</ion-button>
+      </huda-empty-state>
+    } @else {
+      <div class="huda-stepper">
+        <span class="step done">Prescribed</span>
+        <span class="sep">›</span>
+        <span class="step done">Dispense</span>
+        <span class="sep">›</span>
+        <span class="step done">Bill</span>
+        <span class="sep">›</span>
+        <span class="step" [class.done]="isPaid" [class.current]="!isPaid">Collect</span>
+      </div>
+
+      <huda-page-header
+        [title]="bill.patientName || 'Patient'"
+        [subtitle]="'Medicine bill #' + (bill.billNumber || '—')"
+        eyebrow="Collect"
+      >
+        <huda-badge
+          [label]="bill.paymentStatus || 'unpaid'"
+          [variant]="badge(bill.paymentStatus || 'unpaid')"
+        ></huda-badge>
+      </huda-page-header>
+
+      @if (error) {
+        <div class="huda-card huda-card-pad error-card">
+          <p class="huda-error">{{ error }}</p>
+        </div>
+      }
+
+      <div class="huda-card bill-card">
+        <div class="huda-card-pad">
+          <div class="huda-dl">
+            <div class="row">
+              <span class="k">Grand total</span>
+              <span class="v huda-mono">₹{{ rupees(bill.grandTotalPaise) }}</span>
+            </div>
+            <div class="row">
+              <span class="k">Collected</span>
+              <span class="v huda-mono">₹{{ rupees(bill.amountPaidPaise) }}</span>
+            </div>
+            <div class="row">
+              <span class="k">Balance</span>
+              <span class="v huda-mono">₹{{ rupees(balancePaise) }}</span>
+            </div>
+          </div>
+
+          @if (!isPaid) {
+            <div class="pay-block">
+              <span class="huda-field-label">Payment method</span>
+              <ion-segment class="huda-segment" [(ngModel)]="payMethod" name="payMethod">
+                <ion-segment-button value="cash"><ion-label>Cash</ion-label></ion-segment-button>
+                <ion-segment-button value="upi"><ion-label>UPI</ion-label></ion-segment-button>
+                <ion-segment-button value="card"><ion-label>Card</ion-label></ion-segment-button>
+              </ion-segment>
+
+              <div class="huda-field amount">
+                <label class="huda-field-label" for="payAmount">Amount collected (₹)</label>
+                <input
+                  id="payAmount"
+                  class="huda-text-input mono"
+                  type="number"
+                  name="payAmount"
+                  [(ngModel)]="payAmountRupees"
+                />
+              </div>
+
+              <ion-button
+                class="huda-btn-primary"
+                expand="block"
+                [disabled]="busy"
+                (click)="recordPayment()"
+              >
+                Mark medicines paid
+              </ion-button>
+            </div>
+          } @else {
+            <div class="done-note">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              <span>Collected in full</span>
+            </div>
+            <ion-button class="huda-btn-ghost" expand="block" (click)="done()">
+              Back to Bill & Collect
+            </ion-button>
+          }
+
+          <div class="huda-field contact">
+            <label class="huda-field-label" for="phone">Customer WhatsApp</label>
+            <input
+              id="phone"
+              class="huda-text-input mono"
+              type="tel"
+              name="phone"
+              placeholder="+91"
+              [(ngModel)]="phone"
+            />
+          </div>
+
+          <div class="share-block">
+            <ion-button class="huda-btn-ghost" [disabled]="busy" (click)="whatsapp(false)">
+              <ion-icon slot="start" name="logo-whatsapp"></ion-icon>
+              Send bill on WhatsApp
+            </ion-button>
+            @if (bill.pdf?.fileUrl) {
+              <a class="huda-link" [href]="bill.pdf.fileUrl" target="_blank" rel="noopener">
+                Open PDF →
+              </a>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</ion-content>

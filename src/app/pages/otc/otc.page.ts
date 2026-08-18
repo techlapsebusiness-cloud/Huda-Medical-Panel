@@ -52,6 +52,22 @@ export class OtcPage {
       });
   }
 
+  stockLabel(d: any): string {
+    const qty = Number(d?.qtyAvailable ?? 0);
+    const status = d?.stockStatus as string | undefined;
+    if (status === 'out_of_stock' || qty <= 0) return 'Out of stock · 0';
+    if (status === 'low_stock') return `Low · ${qty}`;
+    return `In stock · ${qty}`;
+  }
+
+  stockClass(d: any): 'success' | 'warning' | 'danger' {
+    const qty = Number(d?.qtyAvailable ?? 0);
+    const status = d?.stockStatus as string | undefined;
+    if (status === 'out_of_stock' || qty <= 0) return 'danger';
+    if (status === 'low_stock') return 'warning';
+    return 'success';
+  }
+
   async checkout() {
     this.busy = true;
     this.error = '';

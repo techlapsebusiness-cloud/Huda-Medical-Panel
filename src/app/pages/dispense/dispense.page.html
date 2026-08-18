@@ -28,9 +28,9 @@
         <span class="sep">›</span>
         <span class="step" [class.current]="!bill" [class.done]="!!bill">Dispense</span>
         <span class="sep">›</span>
-        <span class="step" [class.current]="bill && !isPaid" [class.done]="isPaid">Bill</span>
+        <span class="step" [class.current]="false" [class.done]="!!bill">Bill</span>
         <span class="sep">›</span>
-        <span class="step" [class.done]="isPaid" [class.current]="isPaid">Collect</span>
+        <span class="step" [class.done]="isPaid" [class.current]="!!bill && !isPaid">Collect</span>
       </div>
 
       <huda-page-header
@@ -262,6 +262,12 @@
                 <ion-icon name="checkmark-circle-outline"></ion-icon>
                 <span>Dispense completed</span>
               </div>
+              @if (bill && !isPaid) {
+                <p class="huda-hint">Collect payment on this screen or from Bill &amp; Collect.</p>
+                <ion-button class="huda-btn-ghost" expand="block" routerLink="/collect">
+                  Open Bill &amp; Collect
+                </ion-button>
+              }
             }
           </div>
         </div>

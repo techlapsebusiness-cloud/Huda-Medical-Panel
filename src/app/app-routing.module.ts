@@ -23,6 +23,12 @@ const routes: Routes = [
       import('./pages/dispense/dispense.module').then((m) => m.DispensePageModule),
   },
   {
+    path: 'collect',
+    canActivate: [AuthGuard],
+    loadChildren: () =>
+      import('./pages/collect/collect.module').then((m) => m.CollectPageModule),
+  },
+  {
     path: 'otc',
     canActivate: [AuthGuard],
     loadChildren: () =>

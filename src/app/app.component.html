@@ -23,8 +23,11 @@
                 >
                   <ion-icon aria-hidden="true" [name]="p.icon"></ion-icon>
                   <span>{{ p.title }}</span>
-                  @if (p.badge && pending() > 0) {
+                  @if (p.badge === 'pending' && pending() > 0) {
                     <span class="nav-badge huda-mono">{{ pending() }}</span>
+                  }
+                  @if (p.badge === 'collect' && collect() > 0) {
+                    <span class="nav-badge huda-mono">{{ collect() }}</span>
                   }
                 </a>
               </ion-menu-toggle>

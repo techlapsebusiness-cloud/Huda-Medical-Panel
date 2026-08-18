@@ -1,0 +1,91 @@
+<ion-content class="huda-page">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($any($event))">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="huda-page-pad">
+    <huda-page-header
+      title="Bill & Collect"
+      subtitle="Issued medicine bills waiting for payment"
+      eyebrow="Counter"
+    ></huda-page-header>
+
+    <div class="huda-kpi-strip">
+      <div class="huda-kpi-tile">
+        <div class="label">Unpaid</div>
+        <div class="huda-kpi">{{ unpaidCount }}</div>
+      </div>
+      <div class="huda-kpi-tile">
+        <div class="label">Partial</div>
+        <div class="huda-kpi">{{ partialCount }}</div>
+      </div>
+      <div class="huda-kpi-tile">
+        <div class="label">Balance due</div>
+        <div class="huda-kpi">₹{{ rupees(totalBalancePaise) }}</div>
+      </div>
+    </div>
+
+    @if (error) {
+      <div class="huda-card huda-card-pad error-card">
+        <p class="huda-error">{{ error }}</p>
+      </div>
+    }
+
+    <div class="huda-card">
+      <div class="huda-card-pad list-head">
+        <h2 class="huda-card-title">To collect</h2>
+        <ion-searchbar
+          class="huda-search"
+          [(ngModel)]="q"
+          placeholder="Token, name, phone or bill #"
+          debounce="400"
+          (ionInput)="refresh()"
+        ></ion-searchbar>
+      </div>
+
+      @if (loading && !bills.length) {
+        <div class="loading">
+          <ion-spinner name="dots"></ion-spinner>
+        </div>
+      } @else if (!bills.length) {
+        <huda-empty-state
+          title="Nothing to collect"
+          body="After you confirm a dispense, the medicine bill appears here until it is paid."
+          icon="cash-outline"
+        ></huda-empty-state>
+      } @else {
+        <div class="huda-table">
+          <div class="col-head">Patient · Bill · Balance</div>
+          <ion-list lines="full">
+            @for (b of bills; track b.id) {
+              <ion-item button detail="false" (click)="open(b)">
+                <huda-avatar slot="start" [name]="b.patientName || 'P'"></huda-avatar>
+                <ion-label>
+                  <h2 class="row-name">
+                    @if (hasToken(b)) {
+                      <span class="token huda-mono">#{{ b.appointmentToken }}</span>
+                    }
+                    {{ b.patientName || 'Patient' }}
+                  </h2>
+                  <p class="row-meta">
+                    @if (b.billNumber) {
+                      <span class="huda-mono">Bill #{{ b.billNumber }}</span> ·
+                    }
+                    Medicines · due ₹{{ rupees(remaining(b)) }}
+                  </p>
+                </ion-label>
+                <div class="row-end" slot="end">
+                  <span class="amount huda-mono">₹{{ rupees(remaining(b)) }}</span>
+                  <huda-badge
+                    [label]="b.paymentStatus || 'unpaid'"
+                    [variant]="badge(b.paymentStatus || 'unpaid')"
+                  ></huda-badge>
+                </div>
+              </ion-item>
+            }
+          </ion-list>
+        </div>
+      }
+    </div>
+  </div>
+</ion-content>
