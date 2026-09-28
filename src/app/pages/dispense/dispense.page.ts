@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PharmacyApiService } from '../../core/services/pharmacy-api.service';
 import { CounterStateService } from '../../core/services/counter-state.service';
@@ -14,7 +14,7 @@ const EXPIRY_WARNING_DAYS = 90;
   styleUrls: ['./dispense.page.scss'],
   standalone: false,
 })
-export class DispensePage implements OnInit {
+export class DispensePage implements OnInit, OnDestroy {
   taskId = '';
   task: any = null;
   lineQty: Record<string, number> = {};
@@ -26,6 +26,7 @@ export class DispensePage implements OnInit {
   payMethod: 'cash' | 'upi' | 'card' = 'cash';
   payAmountRupees = '';
   error = '';
+  private poll?: ReturnType<typeof setInterval>;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,6 +39,13 @@ export class DispensePage implements OnInit {
   async ngOnInit() {
     this.taskId = this.route.snapshot.paramMap.get('id') || '';
     await this.load();
+    this.poll = setInterval(() => {
+      if (!this.busy) void this.load();
+    }, 10_000);
+  }
+
+  ngOnDestroy() {
+    if (this.poll) clearInterval(this.poll);
   }
 
   async load() {

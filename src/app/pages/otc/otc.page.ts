@@ -42,6 +42,7 @@ export class OtcPage {
 
   add(d: any) {
     const id = d.id || d._id;
+    const price = Number(d.avgMrpPaise ?? d.mrpPaise ?? 0);
     const existing = this.cart.find((c) => c.drugId === id);
     if (existing) existing.qty += 1;
     else
@@ -49,6 +50,7 @@ export class OtcPage {
         drugId: id,
         name: d.brand_name || d.brandName || 'Drug',
         qty: 1,
+        ...(price > 0 ? { unitPricePaise: Math.round(price) } : {}),
       });
   }
 

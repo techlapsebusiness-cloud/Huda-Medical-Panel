@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { PharmacyApiService } from '../../core/services/pharmacy-api.service';
 import { CounterStateService } from '../../core/services/counter-state.service';
@@ -10,11 +10,12 @@ import { hudaRupees, hudaStatusBadge, type HudaBadgeVariant } from '../../shared
   styleUrls: ['./collect.page.scss'],
   standalone: false,
 })
-export class CollectPage implements OnInit {
+export class CollectPage implements OnInit, OnDestroy {
   bills: any[] = [];
   q = '';
   loading = false;
   error = '';
+  private poll?: ReturnType<typeof setInterval>;
 
   constructor(
     private api: PharmacyApiService,
@@ -24,10 +25,15 @@ export class CollectPage implements OnInit {
 
   ngOnInit() {
     void this.refresh();
+    this.poll = setInterval(() => void this.refresh(), 10_000);
+  }
+
+  ngOnDestroy() {
+    if (this.poll) clearInterval(this.poll);
   }
 
   async refresh(event?: CustomEvent) {
-    this.loading = true;
+    if (!this.bills.length || event) this.loading = true;
     this.error = '';
     try {
       this.bills = await this.api.listCollectBills('unpaid,partial', this.q || undefined);

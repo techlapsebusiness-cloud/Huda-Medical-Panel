@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { PharmacyApiService } from '../../core/services/pharmacy-api.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -11,11 +11,12 @@ import { hudaStatusBadge, hudaWaitLabel, type HudaBadgeVariant } from '../../sha
   styleUrls: ['./queue.page.scss'],
   standalone: false,
 })
-export class QueuePage implements OnInit {
+export class QueuePage implements OnInit, OnDestroy {
   tasks: any[] = [];
   q = '';
   loading = false;
   error = '';
+  private poll?: ReturnType<typeof setInterval>;
 
   constructor(
     private api: PharmacyApiService,
@@ -26,10 +27,15 @@ export class QueuePage implements OnInit {
 
   ngOnInit() {
     void this.refresh();
+    this.poll = setInterval(() => void this.refresh(), 10_000);
+  }
+
+  ngOnDestroy() {
+    if (this.poll) clearInterval(this.poll);
   }
 
   async refresh(event?: CustomEvent) {
-    this.loading = true;
+    if (!this.tasks.length || event) this.loading = true;
     this.error = '';
     try {
       this.tasks = await this.api.listTasks(undefined, this.q || undefined);

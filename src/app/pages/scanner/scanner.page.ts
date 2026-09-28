@@ -31,7 +31,7 @@ export class ScannerPage {
       this.result = await this.api.barcode(code);
       this.recent = [code, ...this.recent.filter((c) => c !== code)].slice(0, 5);
     } catch (e: any) {
-      this.error = e?.error?.error?.message || 'No medicine or lot matches that code';
+      this.error = e?.error?.error?.message || 'Not in stock';
     } finally {
       this.busy = false;
       this.searched = true;

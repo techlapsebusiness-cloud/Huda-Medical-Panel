@@ -9,6 +9,11 @@ import { PharmacyApiService } from '../../core/services/pharmacy-api.service';
 })
 export class StockPage implements OnInit {
   summary: any = null;
+  medicines: any[] = [];
+  medicineTotal = 0;
+  medicineSkip = 0;
+  readonly medicineLimit = 25;
+  barcode = '';
   q = '';
   drugs: any[] = [];
   receive = { drugId: '', batchNo: '', qty: 10, mrpPaise: 0, costPaise: 0, expiryDate: '' };
@@ -27,9 +32,23 @@ export class StockPage implements OnInit {
   async load() {
     try {
       this.summary = await this.api.inventorySummary();
+      const page = await this.api.listMedicines(this.medicineSkip, this.medicineLimit);
+      this.medicines = page.data ?? [];
+      this.medicineTotal = page.meta?.total ?? this.medicines.length;
     } catch (e: any) {
       this.error = e?.error?.error?.message || 'Failed to load stock';
     }
+  }
+
+  async nextMedicines() {
+    if (this.medicineSkip + this.medicineLimit >= this.medicineTotal) return;
+    this.medicineSkip += this.medicineLimit;
+    await this.load();
+  }
+
+  async prevMedicines() {
+    this.medicineSkip = Math.max(0, this.medicineSkip - this.medicineLimit);
+    await this.load();
   }
 
   async search() {
@@ -63,6 +82,7 @@ export class StockPage implements OnInit {
         mrpPaise: this.toPaise(this.mrpRupees),
         costPaise: this.toPaise(this.costRupees),
         expiryDate: this.receive.expiryDate || null,
+        ...(this.barcode.trim() ? { barcode: this.barcode.trim() } : {}),
       });
       this.message = `Received ${this.receive.qty} × ${this.selectedName || 'stock'}`;
       this.resetForm();
@@ -73,7 +93,9 @@ export class StockPage implements OnInit {
   }
 
   get trackedCount(): number | string {
-    return this.summary?.trackedDrugs ?? this.summary?.tracked ?? '—';
+    const count = this.summary?.trackedDrugCount;
+    if (typeof count === 'number') return count;
+    return '—';
   }
 
   get lowStockCount(): number {
@@ -93,5 +115,6 @@ export class StockPage implements OnInit {
     this.selectedName = '';
     this.mrpRupees = '';
     this.costRupees = '';
+    this.barcode = '';
   }
 }

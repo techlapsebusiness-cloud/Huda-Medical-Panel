@@ -162,6 +162,16 @@ export class PharmacyApiService {
     ).then((r) => r.data);
   }
 
+  listMedicines(skip = 0, limit = 25) {
+    const params = new HttpParams().set('skip', String(skip)).set('limit', String(limit));
+    return firstValueFrom(
+      this.http.get<{ data: any[]; meta: { total: number; limit: number; skip: number } }>(
+        `${this.projectBase()}/inventory/medicines`,
+        { params }
+      )
+    );
+  }
+
   listLots(drugId?: string) {
     let params = new HttpParams();
     if (drugId) params = params.set('drugId', drugId);

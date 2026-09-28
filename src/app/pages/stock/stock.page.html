@@ -118,6 +118,16 @@
               />
             </div>
             <div class="huda-field span-2">
+              <label class="huda-field-label" for="barcode">Barcode</label>
+              <input
+                id="barcode"
+                class="huda-text-input mono"
+                name="barcode"
+                placeholder="GTIN or pack barcode"
+                [(ngModel)]="barcode"
+              />
+            </div>
+            <div class="huda-field span-2">
               <label class="huda-field-label" for="expiry">Expiry date</label>
               <input
                 id="expiry"
@@ -170,6 +180,36 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="huda-card huda-card-pad" style="margin-top: 16px">
+      <h2 class="huda-card-title">Medicine stock</h2>
+      <p class="huda-meta">
+        Showing
+        {{ medicineTotal === 0 ? 0 : medicineSkip + 1 }}–{{
+          medicineSkip + medicines.length
+        }}
+        of {{ medicineTotal }}
+      </p>
+      @for (row of medicines; track row.drugId || row.id) {
+        <div class="huda-row">
+          <span>{{ row.brandName || row.brand_name || row.name || 'Medicine' }}</span>
+          <span>{{ row.qtyOnHand ?? row.totalQty ?? 0 }}</span>
+        </div>
+      }
+      <div class="huda-row">
+        <ion-button fill="outline" size="small" [disabled]="medicineSkip === 0" (click)="prevMedicines()">
+          Previous
+        </ion-button>
+        <ion-button
+          fill="outline"
+          size="small"
+          [disabled]="medicineSkip + medicineLimit >= medicineTotal"
+          (click)="nextMedicines()"
+        >
+          Next
+        </ion-button>
       </div>
     </div>
   </div>
