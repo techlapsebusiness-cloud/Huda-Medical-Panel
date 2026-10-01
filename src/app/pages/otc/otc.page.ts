@@ -7,7 +7,8 @@ interface CartLine {
   drugId: string;
   name: string;
   qty: number;
-  unitPricePaise?: number;
+  unitPricePaise: number;
+  maxQty: number;
 }
 
 @Component({
@@ -40,18 +41,33 @@ export class OtcPage {
     }
   }
 
-  add(d: any) {
+  async add(d: any) {
     const id = d.id || d._id;
-    const price = Number(d.avgMrpPaise ?? d.mrpPaise ?? 0);
-    const existing = this.cart.find((c) => c.drugId === id);
-    if (existing) existing.qty += 1;
-    else
-      this.cart.push({
-        drugId: id,
-        name: d.brand_name || d.brandName || 'Drug',
-        qty: 1,
-        ...(price > 0 ? { unitPricePaise: Math.round(price) } : {}),
+    const maxQty = Math.max(0, Math.floor(Number(d.qtyAvailable ?? 0)));
+    if (maxQty < 1) {
+      const t = await this.toast.create({
+        message: 'That medicine is out of stock.',
+        duration: 2000,
+        color: 'warning',
       });
+      await t.present();
+      return;
+    }
+    const price = Math.round(Number(d.avgMrpPaise ?? d.mrpPaise ?? 0));
+    const existing = this.cart.find((c) => c.drugId === id);
+    if (existing) {
+      existing.maxQty = maxQty;
+      existing.unitPricePaise = price;
+      existing.qty = Math.min(maxQty, existing.qty + 1);
+      return;
+    }
+    this.cart.push({
+      drugId: id,
+      name: d.brand_name || d.brandName || 'Drug',
+      qty: 1,
+      unitPricePaise: price > 0 ? price : 0,
+      maxQty,
+    });
   }
 
   stockLabel(d: any): string {
@@ -77,7 +93,7 @@ export class OtcPage {
       this.bill = await this.api.createSale({
         items: this.cart.map((c) => ({
           drugId: c.drugId,
-          qty: c.qty,
+          qty: Math.min(c.maxQty, Math.max(1, Math.floor(c.qty) || 1)),
           unitPricePaise: c.unitPricePaise,
         })),
         customerPhone: this.customerPhone,
@@ -118,7 +134,21 @@ export class OtcPage {
   }
 
   step(line: CartLine, delta: number): void {
-    line.qty = Math.max(1, (line.qty || 1) + delta);
+    this.setQty(line, (line.qty || 1) + delta);
+  }
+
+  setQty(line: CartLine, raw: number | string): void {
+    const n = Math.floor(Number(raw) || 0);
+    const max = Math.max(1, line.maxQty || 1);
+    line.qty = Math.min(max, Math.max(1, n));
+  }
+
+  lineTotal(line: CartLine): number {
+    return (line.unitPricePaise || 0) * (line.qty || 0);
+  }
+
+  get cartTotalPaise(): number {
+    return this.cart.reduce((sum, line) => sum + this.lineTotal(line), 0);
   }
 
   remove(line: CartLine): void {

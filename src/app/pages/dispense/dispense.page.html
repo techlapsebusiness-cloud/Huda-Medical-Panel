@@ -93,26 +93,32 @@
                         type="button"
                         aria-label="Decrease"
                         [disabled]="lineOos[line.medicineRowId] || (lineQty[line.medicineRowId] || 0) <= 0"
-                        (click)="step(line.medicineRowId, -1)"
+                        (click)="step(line, -1)"
                       >
                         −
                       </button>
                       <input
                         type="number"
                         min="0"
+                        [max]="maxDispense(line)"
                         [disabled]="lineOos[line.medicineRowId]"
-                        [(ngModel)]="lineQty[line.medicineRowId]"
+                        [ngModel]="lineQty[line.medicineRowId]"
+                        (ngModelChange)="setQty(line, $event)"
                         [name]="'qty-' + line.medicineRowId"
                       />
                       <button
                         type="button"
                         aria-label="Increase"
-                        [disabled]="lineOos[line.medicineRowId]"
-                        (click)="step(line.medicineRowId, 1)"
+                        [disabled]="lineOos[line.medicineRowId] || (lineQty[line.medicineRowId] || 0) >= maxDispense(line)"
+                        (click)="step(line, 1)"
                       >
                         +
                       </button>
                     </div>
+                    @if (shortStock(line)) {
+                      <p class="huda-hint">Only {{ available(line) }} in stock</p>
+                    }
+                    <p class="huda-meta">₹{{ rupees(lineEstimatePaise(line)) }}</p>
                   </div>
 
                   <label class="oos">
@@ -240,6 +246,10 @@
               <div class="row">
                 <span class="k">To dispense now</span>
                 <span class="v huda-mono">{{ totalToDispense }}</span>
+              </div>
+              <div class="row">
+                <span class="k">Estimated total</span>
+                <span class="v huda-mono">₹{{ rupees(estimatePaise) }}</span>
               </div>
               <div class="row">
                 <span class="k">Marked out of stock</span>

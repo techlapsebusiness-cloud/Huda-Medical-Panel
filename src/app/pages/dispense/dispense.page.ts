@@ -27,6 +27,7 @@ export class DispensePage implements OnInit, OnDestroy {
   payAmountRupees = '';
   error = '';
   private poll?: ReturnType<typeof setInterval>;
+  private editedQty = new Set<string>();
 
   constructor(
     private route: ActivatedRoute,
@@ -49,15 +50,21 @@ export class DispensePage implements OnInit, OnDestroy {
   }
 
   async load() {
-    this.loading = true;
+    const first = !this.task;
+    if (first) this.loading = true;
     this.error = '';
     try {
       this.task = await this.api.getTask(this.taskId);
-      this.phone = this.task.patientPhone || '';
+      this.phone = this.task.patientPhone || this.phone || '';
       for (const l of this.task.lines || []) {
+        const rowId = l.medicineRowId;
+        if (this.editedQty.has(rowId)) {
+          this.lineQty[rowId] = this.clampLine(l, this.lineQty[rowId] ?? 0);
+          continue;
+        }
         const remaining = Math.max(0, (l.requestedQty || 0) - (l.dispensedQty || 0));
-        this.lineQty[l.medicineRowId] = remaining;
-        this.lineOos[l.medicineRowId] = false;
+        this.lineQty[rowId] = this.clampLine(l, remaining);
+        this.lineOos[rowId] = false;
       }
       if (this.task.status === 'pending') {
         await this.api.claimTask(this.taskId);
@@ -91,7 +98,7 @@ export class DispensePage implements OnInit, OnDestroy {
         medicineRowId: l.medicineRowId,
         dispensedQty: this.lineOos[l.medicineRowId]
           ? 0
-          : this.lineQty[l.medicineRowId] ?? 0,
+          : this.clampLine(l, this.lineQty[l.medicineRowId] ?? 0),
         outOfStock: !!this.lineOos[l.medicineRowId],
       }));
       const result = await this.api.dispense(this.taskId, {
@@ -100,6 +107,7 @@ export class DispensePage implements OnInit, OnDestroy {
       });
       this.task = result.task;
       this.bill = result.bill;
+      this.editedQty.clear();
       if (this.bill) {
         this.payAmountRupees = ((this.bill.grandTotalPaise || 0) / 100).toFixed(2);
         try {
@@ -194,9 +202,55 @@ export class DispensePage implements OnInit, OnDestroy {
     return Math.max(0, (line.requestedQty || 0) - (line.dispensedQty || 0));
   }
 
-  step(rowId: string, delta: number): void {
-    const next = (this.lineQty[rowId] ?? 0) + delta;
-    this.lineQty[rowId] = Math.max(0, next);
+  available(line: any): number {
+    const sug = this.suggestion(line.medicineRowId);
+    if (!sug || sug.available == null) return this.remaining(line);
+    return Math.max(0, Number(sug.available) || 0);
+  }
+
+  maxDispense(line: any): number {
+    return Math.min(this.remaining(line), this.available(line));
+  }
+
+  clampLine(line: any, qty: number): number {
+    const n = Math.floor(Number(qty) || 0);
+    return Math.max(0, Math.min(n, this.maxDispense(line)));
+  }
+
+  shortStock(line: any): boolean {
+    return this.remaining(line) > this.available(line);
+  }
+
+  setQty(line: any, raw: number | string): void {
+    this.editedQty.add(line.medicineRowId);
+    this.lineQty[line.medicineRowId] = this.clampLine(line, Number(raw));
+  }
+
+  step(line: any, delta: number): void {
+    const rowId = line.medicineRowId;
+    this.setQty(line, (this.lineQty[rowId] ?? 0) + delta);
+  }
+
+  lineEstimatePaise(line: any): number {
+    if (this.lineOos[line.medicineRowId]) return 0;
+    let left = this.lineQty[line.medicineRowId] ?? 0;
+    if (left <= 0) return 0;
+    const lots = this.suggestion(line.medicineRowId)?.lots || [];
+    let total = 0;
+    for (const lot of lots) {
+      if (left <= 0) break;
+      const take = Math.min(left, Number(lot.qty) || 0);
+      total += take * (Number(lot.mrpPaise) || 0);
+      left -= take;
+    }
+    return total;
+  }
+
+  get estimatePaise(): number {
+    return (this.task?.lines || []).reduce(
+      (sum: number, line: any) => sum + this.lineEstimatePaise(line),
+      0
+    );
   }
 
   expiringSoon(expiryDate: string): boolean {

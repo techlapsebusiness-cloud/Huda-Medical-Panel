@@ -75,16 +75,28 @@
               @for (c of cart; track c.drugId) {
                 <div class="cart-line">
                   <div class="cart-name">{{ c.name }}</div>
+                  <p class="huda-meta">
+                    ₹{{ rupees(c.unitPricePaise) }} × {{ c.qty }} = ₹{{ rupees(lineTotal(c)) }}
+                  </p>
                   <div class="cart-controls">
                     <div class="huda-qty compact">
                       <button type="button" aria-label="Decrease" (click)="step(c, -1)">−</button>
                       <input
                         type="number"
                         min="1"
-                        [(ngModel)]="c.qty"
+                        [max]="c.maxQty"
+                        [ngModel]="c.qty"
+                        (ngModelChange)="setQty(c, $event)"
                         [name]="'qty-' + c.drugId"
                       />
-                      <button type="button" aria-label="Increase" (click)="step(c, 1)">+</button>
+                      <button
+                        type="button"
+                        aria-label="Increase"
+                        [disabled]="c.qty >= c.maxQty"
+                        (click)="step(c, 1)"
+                      >
+                        +
+                      </button>
                     </div>
                     <button
                       type="button"
@@ -103,6 +115,10 @@
               <div class="row">
                 <span class="k">Units</span>
                 <span class="v huda-mono">{{ totalUnits }}</span>
+              </div>
+              <div class="row">
+                <span class="k">Total</span>
+                <span class="v huda-mono">₹{{ rupees(cartTotalPaise) }}</span>
               </div>
             </div>
           }
